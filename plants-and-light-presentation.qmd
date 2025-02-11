@@ -9,14 +9,20 @@ format:
 ---
 
 ```{r, include=FALSE}
+library(lubridate)
 library(ggspectra)
 library(ggpp)
 library(ggrepel)
+library(gganimate)
+library(patchwork)
 library(photobiologyWavebands)
 library(photobiologySun)
 library(photobiologyPlants)
 library(photobiologyLamps)
 library(photobiologyLEDs)
+
+theme_set(theme_minimal(14))
+photon_as_default()
 ```
 
 ## Plant-Light Interactions
@@ -93,10 +99,70 @@ scale_color_identity() +
 theme_minimal()
 
 ```
+## Sun through a day
 
-## LED grow lights
-
-```{r}
-autoplot(gap.mspct, annotations = c("-", "peaks"))
+```{r, include=FALSE}
+# prepare data
+sun_one_day.spct <- sun_hourly_august.spct
+sun_one_day.spct <- subset(sun_one_day.spct, day(UTC) == 21)
+sun_one_day.spct <- setIdFactor(sun_one_day.spct, idfactor = "UTC")
+idfactor <- getIdFactor(sun_one_day.spct)
+sun_one_day.spct[["time"]] <- sun_one_day.spct[[idfactor]]
+sun_one_day.spct[[idfactor]] <- factor(sun_one_day.spct[[idfactor]])
 ```
 
+```{r, echo=FALSE, warning=FALSE}
+#| label: fig-spectra-whole-day-anim
+#| fig-cap: Time series of scaled spectral photon irradiance during one day. Hourly mean spectra scaled to PAR = 1000 $\mu mol\,s^{-1}\,m^{-2}$ to emphasize the change in shape. Simulated with libradtran including the effect of clouds for Kumpula, Helsinki, Finland. Data from Andes Lindfors.
+
+anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.band = PAR()),
+               unit.out = "photon") +
+  geom_spct() +
+  scale_x_wl_continuous() +
+  scale_y_s.q.irrad_continuous(name = s.q.irrad_label(scaled = TRUE)) +
+  transition_states(get(idfactor),
+                    transition_length = 2,
+                    state_length = 1) +
+  ggtitle('Now showing {closest_state} UTC',
+          subtitle = 'Frame {frame} of {nframes}')
+animate(anim, duration = 20, fps = 10)
+```
+
+## Sun through four days
+
+```{r, echo=FALSE}
+#| label: fig-PAR-four-days
+#| fig-cap: Time course of PAR, UV-A and UV-B photon irradiance during four consecutive days with different cloud conditions. Measured with broad band-sensors at Viikki, Helsinki, Finland. The values plotted are 1 min means from measurements once every 5 s. The step changes at very low sun elevations are caused by shading from far-away buildings.
+
+((ggplot(four_days_1min.data, aes(time_EET, PAR_umol)) +
+  geom_spct() +
+    annotate(geom = "text_npc", label = "PAR", npcy = 0.95, npcx = 0.05) +
+    labs(x = "Local time", y = "")) /
+(ggplot(four_days_1min.data, aes(time_EET, UVA_umol)) +
+  geom_spct() +
+    annotate(geom = "text_npc", label = "UV-A", npcy = 0.95, npcx = 0.05) +
+    labs(x = "Local time", y = expression("Photon irradiance "*(mu*mol~s^{-1}~m^{-2})))) /
+(ggplot(four_days_1min.data, aes(time_EET, UVB_umol)) +
+  geom_spct()) +
+    annotate(geom = "text_npc", label = "UV-B", npcy = 0.95, npcx = 0.05) +
+    labs(x = "Time", y = "")) + 
+  plot_layout(axes = 'collect')
+```
+
+## LED-based grow lights (luminaires)
+
+```{r}
+autoplot(lamps.mspct[plant_grow_lamps[1:4]], 
+         range = c(350, 900), span = 31,
+         annotations = c("-", "summaries"), facets = 2) + 
+  theme(legend.position = "none")
+```
+
+## Grow LEDs (components)
+
+```{r}
+autoplot(leds.mspct[plant_grow_leds[c(1,2, 3, 5)]], 
+         range = c(350, 900), span = 31,
+         annotations = c("-", "summaries"), facets = 2) + 
+  theme(legend.position = "none")
+```
