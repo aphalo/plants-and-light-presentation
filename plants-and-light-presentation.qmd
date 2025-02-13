@@ -2,10 +2,16 @@
 title: "Plants and Light"
 subtitle: "Light as Source of Energy and Information"
 author: "Pedro J. Aphalo"
+institute: "University of Helsinki"
 date: 2025-02-25
 format:
   revealjs: 
-    theme: default
+    transition: slide
+    theme: serif
+    slide-number: true
+    width: 1200
+    height: 800
+    embed-resources: true
 ---
 
 ```{r, include=FALSE}
@@ -34,7 +40,7 @@ Ph --> In[Information] --> Rg[[Regulation<br/>photomorphogenesis]]
 L --> Sc[Screening pigments<br/> _variable concentration_] 
 Sc --> Ed[Energy dissipation] --> Pr[[Protection<br/>from damage]]
 L --> Lh[Light-harvesting pigments<br/> _high concentration_] 
-Lh --> Ps[Photosynthesis=<br/>Energy converssion] --> Gr[[Biomass<br/>plant growth]]
+Lh --> Ps[Photosynthesis =<br/>Energy conversion] --> Gr[[Biomass<br/>plant growth]]
 
 ```
 
@@ -99,7 +105,56 @@ scale_color_identity() +
 theme_minimal()
 
 ```
-## Sun through a day
+
+## Energy flow: electricity to produce {.scrollable}
+
+```{mermaid}
+flowchart TB
+E(**Electricity**) ==> LED([LED + driver])
+LED == 30 to 50% ==> L([Light<br/>_irradiance and spectrum_*])
+LED -- 50 to 70% --> H[[Heat]]
+L == 1 to 100% ==> IL[Intercepted by leaves<br/>_leaf area index or LAI by imaging_*]
+L -- 100 to 1% --> NIL[Not intercepted by leaves<br/>_reaches soil, pots, shelves..._] 
+NIL -- 100% --> WSA[Absorbed by objects] --> Hobj[[Heat]]
+IL == 70 to 90% (LEDs) ===> Ab[Absorbed] 
+IL -- 5 to 20% (LEDs) --> Rfl[[Reflected<br/>_imaging_*]]
+IL -- 2 to 15% (LEDs) --> Tfr[[Transmitted<br/>_imaging?_*]]
+Ab ==> Ph[Photosynthesis] == 2 to 5%<br/>of absorbed ==> Ch([Chemical energy<br/>_metabolites_])
+Ab --> Fl[[Light<br/>_fluorescence_*]]
+Ab --> He[Heat] --> Tleaf([_temperature of leaves_*])
+Tleaf <--> Cv[[Convection<br/>_cooling or warming_]]
+Tleaf --> Tr[[Transpiration<br/>_cooling_]]
+Tr -- water use --> Sw([Soil water<br/>_pot weight_*]) 
+Ch == 0 to 70% (?) ==> Gr[Growth<br/>_plant size and shape_*]
+Ch -- 100 to 30% (?) --> Mn[[Maintenance<br/>_defence and repair_]]
+Cv <--> Tair([Air temperature*])
+Tr <--> Hair([Air water vapour*])
+Tleaf <--> Thr[[Thermal radiation<br/>_cooling or warming_]]
+Gr == ?% ==> Hv[[**Harvested**<br/>**produce**]]
+Gr -- ?% --> Wst[[Waste]]
+
+```
+
+## How does regulation affect growth rate?
+
+* _Starting with a given amount of "building blocks" (sugars + minerals)_ decisions involve:
+* grow big roots and small shoots, or vice versa,
+* make large thin leaves or smaller thick leaves,
+* continue making only leaves, or start making "fruits",
+* grow tall to avoid shade from neighbours or stay low and tolerate the shade.
+
+## The compromise
+
+* A larger surface of leaves intercepts more light driving a faster growth rate (similar to compound interest), but to a point.
+* Larger/longer roots have access to more water and minerals allowing building new leaves, so a balance is needed.
+* What is a good balance depends on light irradiance and soil conditions.
+
+* "Decisions by the plant" are based to a significant extent on the colour of light, because in nature the colour of light informs about _future_ shade.
+
+## Sunlight
+
+::: {.panel-tabset}
+### Spectrum
 
 ```{r, include=FALSE}
 # prepare data
@@ -111,9 +166,11 @@ sun_one_day.spct[["time"]] <- sun_one_day.spct[[idfactor]]
 sun_one_day.spct[[idfactor]] <- factor(sun_one_day.spct[[idfactor]])
 ```
 
+
 ```{r, echo=FALSE, warning=FALSE}
 #| label: fig-spectra-whole-day-anim
-#| fig-cap: Time series of scaled spectral photon irradiance during one day. Hourly mean spectra scaled to PAR = 1000 $\mu mol\,s^{-1}\,m^{-2}$ to emphasize the change in shape. Simulated with libradtran including the effect of clouds for Kumpula, Helsinki, Finland. Data from Andes Lindfors.
+#| fig-asp: 0.4
+#| fig-cap: Time series of scaled spectral photon irradiance during one day. Spectra scaled to PAR = 1000 $\mu mol\,s^{-1}\,m^{-2}$. Data from Andes Lindfors.
 
 anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.band = PAR()),
                unit.out = "photon") +
@@ -128,41 +185,80 @@ anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.ban
 animate(anim, duration = 20, fps = 10)
 ```
 
-## Sun through four days
+### Irradiance
 
 ```{r, echo=FALSE}
 #| label: fig-PAR-four-days
-#| fig-cap: Time course of PAR, UV-A and UV-B photon irradiance during four consecutive days with different cloud conditions. Measured with broad band-sensors at Viikki, Helsinki, Finland. The values plotted are 1 min means from measurements once every 5 s. The step changes at very low sun elevations are caused by shading from far-away buildings.
+#| fig-asp: 0.45
+#| fig-cap: Time course of PAR photon irradiance during four consecutive days with different cloud conditions. Measured with broad band-sensors at Viikki, Helsinki, Finland.
 
-((ggplot(four_days_1min.data, aes(time_EET, PAR_umol)) +
+ggplot(four_days_1min.data, aes(time_EET, PAR_umol)) +
   geom_spct() +
     annotate(geom = "text_npc", label = "PAR", npcy = 0.95, npcx = 0.05) +
-    labs(x = "Local time", y = "")) /
-(ggplot(four_days_1min.data, aes(time_EET, UVA_umol)) +
-  geom_spct() +
-    annotate(geom = "text_npc", label = "UV-A", npcy = 0.95, npcx = 0.05) +
-    labs(x = "Local time", y = expression("Photon irradiance "*(mu*mol~s^{-1}~m^{-2})))) /
-(ggplot(four_days_1min.data, aes(time_EET, UVB_umol)) +
-  geom_spct()) +
-    annotate(geom = "text_npc", label = "UV-B", npcy = 0.95, npcx = 0.05) +
-    labs(x = "Time", y = "")) + 
-  plot_layout(axes = 'collect')
+    labs(x = "Local time", y = expression("Photon irradiance "*(mu*mol~m^{-2}~s^{-1})))
 ```
+:::
 
-## LED-based grow lights (luminaires)
+## Plants' shade
+
+::: {.panel-tabset}
+### Beech (dense)
+
+```{r, warning=FALSE}
+#| label: fig-beech-shade
+#| fig-asp: 0.4
+#| fig-cap: Light spectrum under a dense grove of young beech trees and in the open next to it.
+#| out-width: '100%'
+# load("data/collection-beech-shade-sun-BIO301.Rda")
+# beech_shade.mspct <- collection.xx.irrad.mspct
+# save(beech_shade.mspct, file = "data/beech-shade-mspct.rda")
+load("data/beech-shade-mspct.rda")
+
+for (i in seq_along(beech_shade.mspct)) {
+  beech_shade.mspct[[i]][["rfr.rat"]] <- R_FR(beech_shade.mspct[[i]])
+  beech_shade.mspct[[i]][["shade"]] <- ifelse(beech_shade.mspct[[i]][["rfr.rat"]] < 0.7,
+                                              "Under trees", "In the open")
+}
+# rfr_ratio.df <- R_FR(beech_shade.mspct)
+
+beech_shade.spct <- rbindspct(beech_shade.mspct)
+autoplot(beech_shade.spct, annotations = c("-", "peaks")) +
+  facet_wrap(facets = vars(shade)) +
+  theme_bw() + 
+  theme(legend.position = "none")
+```
+:::
+
+## LEDs for plant cultivation
+
+::: {.panel-tabset}
+### Grow lights (luminaires)
 
 ```{r}
+#| label: fig-grow-lights
+#| fig-asp: 0.45
+#| fig-cap: Spectra of four contrasting LED grow lights.
+#| out-width: '100%'
 autoplot(lamps.mspct[plant_grow_lamps[1:4]], 
          range = c(350, 900), span = 31,
          annotations = c("-", "summaries"), facets = 2) + 
+  theme_bw() + 
   theme(legend.position = "none")
 ```
 
-## Grow LEDs (components)
+### Grow LEDs (components)
 
 ```{r}
+#| label: fig-grow-leds
+#| fig-asp: 0.45
+#| fig-cap: Spectra of four contrasting LEDs sold for grow lights.
+#| out-width: '100%'
 autoplot(leds.mspct[plant_grow_leds[c(1,2, 3, 5)]], 
          range = c(350, 900), span = 31,
-         annotations = c("-", "summaries"), facets = 2) + 
+         annotations = c("-", "summaries"), facets = 2) +
+  theme_bw() + 
   theme(legend.position = "none")
 ```
+
+:::
+
