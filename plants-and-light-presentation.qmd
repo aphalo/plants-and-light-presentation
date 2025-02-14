@@ -2,7 +2,7 @@
 title: "Plants and Light"
 subtitle: "Light as Source of Energy and Information"
 author: "Pedro J. Aphalo"
-institute: "University of Helsinki"
+institute: "_University of Helsinki_ and _Natural Resources Institute Finland_"
 date: 2025-02-25
 format:
   revealjs: 
@@ -11,6 +11,7 @@ format:
     slide-number: true
     width: 1200
     height: 800
+    code-tools: true
     embed-resources: true
 ---
 
@@ -153,9 +154,6 @@ Gr -- ?% --> Wst[[Waste]]
 
 ## Sunlight
 
-::: {.panel-tabset}
-### Spectrum
-
 ```{r, include=FALSE}
 # prepare data
 sun_one_day.spct <- sun_hourly_august.spct
@@ -166,25 +164,7 @@ sun_one_day.spct[["time"]] <- sun_one_day.spct[[idfactor]]
 sun_one_day.spct[[idfactor]] <- factor(sun_one_day.spct[[idfactor]])
 ```
 
-
-```{r, echo=FALSE, warning=FALSE}
-#| label: fig-spectra-whole-day-anim
-#| fig-asp: 0.4
-#| fig-cap: Time series of scaled spectral photon irradiance during one day. Spectra scaled to PAR = 1000 $\mu mol\,s^{-1}\,m^{-2}$. Data from Andes Lindfors.
-
-anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.band = PAR()),
-               unit.out = "photon") +
-  geom_spct() +
-  scale_x_wl_continuous() +
-  scale_y_s.q.irrad_continuous(name = s.q.irrad_label(scaled = TRUE)) +
-  transition_states(get(idfactor),
-                    transition_length = 2,
-                    state_length = 1) +
-  ggtitle('Now showing {closest_state} UTC',
-          subtitle = 'Frame {frame} of {nframes}')
-animate(anim, duration = 20, fps = 10)
-```
-
+::: {.panel-tabset}
 ### Irradiance
 
 ```{r, echo=FALSE}
@@ -197,6 +177,29 @@ ggplot(four_days_1min.data, aes(time_EET, PAR_umol)) +
     annotate(geom = "text_npc", label = "PAR", npcy = 0.95, npcx = 0.05) +
     labs(x = "Local time", y = expression("Photon irradiance "*(mu*mol~m^{-2}~s^{-1})))
 ```
+
+### Spectrum
+
+```{r, echo=FALSE, warning=FALSE}
+#| label: fig-spectra-whole-day-anim
+#| fig-asp: 0.4
+#| fig-cap: Time series of scaled spectral photon irradiance during one day. Spectra scaled to $Q_{\lambda 400..700 nm} = 1000 \mu mol\,s^{-1}\,m^{-2}$. Data from Andes Lindfors.
+
+anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.band = PAR()),
+               unit.out = "photon") +
+#  stat_wl_strip(ymax = 0, ymin = -0.1) +
+  geom_spct() +
+  scale_x_wl_continuous() +
+  scale_y_s.q.irrad_continuous(name = s.q.irrad_label(scaled = TRUE)) +
+#  scale_fill_identity() +
+  transition_states(UTC,
+                    transition_length = 2,
+                    state_length = 1) +
+  ggtitle('Now showing {closest_state} UTC',
+          subtitle = 'Frame {frame} of {nframes}')
+animate(anim, duration = 20, fps = 10)
+```
+
 :::
 
 ## Plants' shade
