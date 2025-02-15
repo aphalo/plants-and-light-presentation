@@ -187,11 +187,11 @@ ggplot(four_days_1min.data, aes(time_EET, PAR_umol)) +
 
 anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.band = PAR()),
                unit.out = "photon") +
-#  stat_wl_strip(ymax = 0, ymin = -0.1) +
+  stat_wl_strip(ymax = 0, ymin = -0.03, by.group = TRUE) +
   geom_spct() +
   scale_x_wl_continuous() +
   scale_y_s.q.irrad_continuous(name = s.q.irrad_label(scaled = TRUE)) +
-#  scale_fill_identity() +
+  scale_fill_identity() +
   transition_states(UTC,
                     transition_length = 2,
                     state_length = 1) +
