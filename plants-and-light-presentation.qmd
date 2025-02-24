@@ -9,8 +9,8 @@ format:
     transition: slide
     theme: serif
     slide-number: true
-    width: 1200
-    height: 800
+    width: 1300
+    height: 750
     code-tools: true
     embed-resources: true
 ---
@@ -22,6 +22,7 @@ library(ggpp)
 library(ggrepel)
 library(gganimate)
 library(patchwork)
+library(legendry)
 library(photobiologyWavebands)
 library(photobiologySun)
 library(photobiologyPlants)
@@ -31,6 +32,47 @@ library(photobiologyLEDs)
 theme_set(theme_minimal(14))
 photon_as_default()
 ```
+
+# Mini CV
+
+## CV: Studies and places
+
+* 1956 Born in Buenos Aires, Argentina.
+* 1982 Ingeniero Agrónomo (orientation Crop Breeding), University of Buenos Aires.
+* 1989 (1987) MSc Plant Production (Thesis: Plant Ecophysiology + Simulation Modelling), University of Buenos Aires.
+* 1991 PhD in Science (Thesis: Plant Ecophysiology + Measurement and Control), Edinburgh University.[*](https://www.researchgate.net/publication/265240047_Interactions_in_stomatal_function)
+* 1991-2024 Work in Finland. METLA. U. Joensuu. U. Jyväskylä. U. Helsinki.
+* 2024- Retired. Visiting Researcher at U. Helsinki and Natural Resources Inst. Finland (Luke).
+
+## CV: Plant Sciences {.scrollable}
+
+* [(1978) 1981-2025] Plant sciences, articles published: $\approx 100$. [ORCID](https://orcid.org/0000-0003-3385-972X).
+  - Review: _Making the most of canopy light: shade avoidance under a fluctuating spectrum and irradiance_ (2024) [*](https://doi.org/10.1093/jxb/erae334)
+  - Paper: _Ultraviolet‐A1 radiation induced a more favorable light‐intercepting leaf‐area display than blue light and promoted plant growth_ (2024)[*](https://doi.org/10.1111/pce.14727)
+  - Review: _Diffuse solar radiation and canopy photosynthesis in a changing environment_ (2021) [*](https://doi.org/10.1016/j.agrformet.2021.108684)
+  - Review: _Perception of solar UV radiation by plants: photoreceptors and mechanisms_ (2021) [*](https://doi.org/10.1093/plphys/kiab162)
+  - Paper: _Explaining preemptive acclimation by linking information to plant phenotype_ (2021) [*](https://doi.org/10.1093/jxb/erab537)
+  - Review: _Making science more effective for agriculture_ (2020) [*](https://doi.org/10.1016/bs.agron.2020.05.003)
+
+## CV: Software development
+
+* [(1978) 1997-2025] Software. Simulation modelling, data analysis and measurement and control [*](https://www.r4photobiology.info)
+  - Programming: I use mainly R. I have used extensively Modula-2 and Pascal. I am familiar and sometimes use C, C++, FORTRAN, Java, Python, and Perl. I have used AWK, 8086 assembler, 6800 assembler, etc.
+  - Currently maintain $\approx 20$ (14 @ CRAN) R packages.
+  - Text mark-up: $\LaTeX$, Markdown (R Markdown, Quarto), HTML.
+  - Book author: _Learn R: As a Language_ (2nd edition, 2024), in The R Series of CRC.[*](https://www.learnr-book.info/)
+
+## CV: Measurement and Control
+
+* [(1978) 2012-2025] Measurement and control hardware deployment and customization. As tools in research.
+  - Book lead editor: _Beyond the Visible: A handbook of best practice in plant UV photobiology_ (2012)[*](https://www.r4photobiology.info/pages/beyond-the-visible.html)
+  - UV, VIS and NIR spectral and broadband measurements.
+  - Manipulation of the light environment: LEDs, optical filters, discharge lamps.
+  - CO2 and water vapour exchange of leaves and plants.
+  - Micrometeorology.
+  - Photography/imaging[*](https://www.photo-spectrum.info/). Ultraviolet, visible, near infra-red, thermal. Macro, tele, hemispherical, etc.
+
+# Plants and Light
 
 ## Plant-Light Interactions
 
@@ -44,12 +86,13 @@ L --> Lh[Light-harvesting pigments<br/> _high concentration_]
 Lh --> Ps[Photosynthesis =<br/>Energy conversion] --> Gr[[Biomass<br/>plant growth]]
 
 ```
+## Growth Regulation by the Spectrum
 
 ![Tomato: Responses to the spectrum at equal photon irradiance.](figures/tomatos.jpg)
 
 ## Light Actions 
 
-```{r, echo=FALSE, fig.asp=0.5, fig.width= 6}
+```{r, echo=FALSE, fig.asp=0.54, fig.width= 6}
 #| label: fig-photoreceptors
 #| fig-cap: Range of wavelengths sensed through different higher-plant photoreceptor families (black "information acquisition") or driving photoreactions (orange "energy dependent"). DNA damage and repair, photosynthesis and photoreceptors; CRY&#58; cryptochromes 1 and 2, PHOT&#58; phototropins 1 and 2, ZTL&#58; Zeitlupe, UVR8&#58; "UV-B" photoreceptor, PHY&#58; phytochromes A/B/C/D/E.
 
@@ -62,48 +105,76 @@ photoreceptors.df <- data.frame(
   max.wl = c(345, 500, 600, 490, 790, 480, 750, 450, 330)
 )
 
-ggplot(photoreceptors.df, aes(y = Receptor)) +
+phoreceptors.fig <-
+  ggplot(photoreceptors.df, aes(y = Receptor)) +
   geom_vline(xintercept = 293, linetype = "dashed") +
   geom_segment(aes(x = low.wl, xend= high.wl, 
                    colour = ifelse(Receptor %in% c("Photosynthesis", "DNA damage", "DNA repair"), "orange", "black")), 
                linewidth = 5, na.rm = TRUE) +
   geom_segment(aes(x = min.wl, xend= max.wl, 
                    colour = ifelse(Receptor %in% c("Photosynthesis", "DNA damage", "DNA repair"), "orange", "black")), linewidth = 3, alpha = 0.4) +
-scale_x_continuous(name = "Wavelength (nm)", 
-                   breaks = (1:9) * 100) +
-labs(y = "Receptor or reaction") +
-scale_color_identity() +
-theme_minimal()
+  scale_x_continuous(name = "Wavelength (nm)", 
+                     breaks = (1:9) * 100) +
+  labs(y = "Photoreceptors    Reactions") +
+  scale_color_identity() +
+  theme_minimal()
 
+ranges <- key_range_manual(
+  start = c("UVR8", "Photosynthesis"),
+  end   = c("PHY", "DNA damage"), 
+  name  = c("Information", "Energy"), 
+  level = 1
+)
+
+phoreceptors.fig + guides(y.sec = primitive_bracket(ranges, bracket = "square", angle = 90))
 ```
 
 ## Light Screening and Absorption
 
-```{r, echo=FALSE, fig.asp=0.33, fig.width= 6}
+```{r, echo=FALSE, fig.asp=0.54, fig.width= 6}
 #| label: fig-pigments-leaves
-#| fig-cap: Optical properties of leaves (green) and protective light-screening pigments (dark red). Thick lines indicate high absorption and paler narrower lines moderate absorption by pigments, or absorptance, reflectance or transmittance for whole leaves. 
+#| fig-cap: Optical properties of leaves (olive), screening pigments (brown) and photosynthetic pigments (green). Thick lines indicate high absorption and paler narrower lines moderate absorption by pigments, or absorptance or reflectance plus transmittance for whole leaves. 
 
-photoreceptors.df <- data.frame(
-  Receptor = factor(c("Flavonoids", "Phenolic acids", "Anthocyanins", "Leaf reflectance\nand transmittance", "Leaf absorptance"), 
-  levels = c("Flavonoids", "Phenolic acids", "Anthocyanins", "Leaf reflectance\nand transmittance", "Leaf absorptance")),
-  low.wl = c(340, 280, 470, 750, 250),
-  high.wl = c(380, 350, 560, 1000, 705),
-  min.wl = c(250, 250, 320, 250, 250),
-  max.wl = c(400, 370, 590, 1000, 750),
-  colour = c(rep("darkred", 3), rep("darkgreen", 2))
+pigments.df <- data.frame(
+  Pigment = factor(c("Chlorophylls", "Chlorophylls", "Carotenoids", "Flavonols", "Phenolic acids", "Anthocyanins", "Leaf reflectance\nand transmittance", "Leaf absorptance"), 
+  levels = c("Chlorophylls", "Carotenoids", "Flavonols", "Phenolic acids", "Anthocyanins", "Leaf reflectance\nand transmittance", "Leaf absorptance")),
+  low.wl = c(380, 600, 400, 340, 280, 470, 750, 250),
+  high.wl = c(460, 680, 475, 380, 350, 560, 900, 705),
+  min.wl = c(300, NA, 375, 250, 250, 320, 250, 250),
+  max.wl = c(700, NA, 480, 400, 370, 590, 900, 750),
+  colour = c(rep("forestgreen", 3), rep("brown", 3), rep("darkolivegreen", 2))
 )
 
-ggplot(photoreceptors.df, aes(y = Receptor)) +
+pigments.fig <-
+  ggplot(pigments.df, aes(y = Pigment)) +
   geom_vline(xintercept = 293, linetype = "dashed") +
   geom_segment(aes(x = low.wl, xend= high.wl, colour = colour), 
                linewidth = 5, na.rm = TRUE) +
   geom_segment(aes(x = min.wl, xend= max.wl, colour = colour), 
-               linewidth = 3, alpha = 0.4) +
-scale_x_continuous(name = "Wavelength (nm)", 
-                   breaks = (1:9) * 100) +
-labs(y = "Pigment or object") +
-scale_color_identity() +
-theme_minimal()
+               linewidth = 3, alpha = 0.4, na.rm = TRUE) +
+  scale_x_continuous(name = "Wavelength (nm)", 
+                     breaks = (1:9) * 100) +
+  labs(y = "\"Mass\" pigments        Leaf") +
+  scale_color_identity() +
+  theme_minimal()
+
+metabolite.ranges <- key_range_manual(
+  start = c("Flavonols", "Chlorophylls"),
+  end   = c("Anthocyanins", "Carotenoids"), 
+  name  = c("Protection", "Photosynthesis"), 
+  level = 1
+)
+
+optics.ranges <- key_range_manual(
+  start = c(250, 720),
+  end   = c(705, 900), 
+  name  = c("Absorption", "Scattering"), 
+  level = 1
+)
+
+pigments.fig + 
+  guides(y.sec = primitive_bracket(metabolite.ranges, bracket = "square", angle = 90),
+         x.sec = primitive_bracket(optics.ranges, bracket = "square"))
 
 ```
 
@@ -136,9 +207,47 @@ Gr -- ?% --> Wst[[Waste]]
 
 ```
 
+## Chlorophyll fluorescence
+
+![Faba beans: _In vivo_ chlorophyll fluorescence (NIR) excited by visible light.](figures/faba-chl-fluo-01.jpg){width=50%}
+
+## Photosynthetic Action Spectrum
+
+::: {.panel-tabset}
+### Chlorophyll
+
+```{r}
+#| label: fig-chlorophyll-spct
+#| fig-cap: Light absorption spectrum of chlorophyll.
+
+autoplot(chlorophylls.mspct[grepl("DME", names(chlorophylls.mspct))], 
+         plot.qty = "absorbance", span = 101, range = c(250, 800),
+         annotations = c("+", "peak.labels"))
+```
+
+### Leaf
+
+```{r}
+#| label: fig-leaf-spct
+#| fig-cap: Spectral optical properties of the upper surface of a leaf of Arabidopsis.
+
+autoplot(Ler_leaf.spct)
+```
+
+### Photosynthesis
+
+```{r}
+#| label: fig-photosynthesis-spct
+#| fig-cap: Spectral response of photosynthesis in two plant species.
+
+autoplot(McCree_photosynthesis.mspct, span = 21, annotations = c("+", "peak.labels"))
+```
+
+:::
+
 ## How does regulation affect growth rate?
 
-* _Starting with a given amount of "building blocks" (sugars + minerals)_ decisions involve:
+* _Starting with a given amount of "building blocks" (sugars + minerals)_ "plants' growth-regulation decisions" involve:
 * grow big roots and small shoots, or vice versa,
 * make large thin leaves or smaller thick leaves,
 * continue making only leaves, or start making "fruits",
@@ -151,6 +260,8 @@ Gr -- ?% --> Wst[[Waste]]
 * What is a good balance depends on light irradiance and soil conditions.
 
 * "Decisions by the plant" are based to a significant extent on the colour of light, because in nature the colour of light informs about _future_ shade.
+
+# The Light Environment
 
 ## Sunlight
 
@@ -183,7 +294,7 @@ ggplot(four_days_1min.data, aes(time_EET, PAR_umol)) +
 ```{r, echo=FALSE, warning=FALSE}
 #| label: fig-spectra-whole-day-anim
 #| fig-asp: 0.4
-#| fig-cap: Time series of scaled spectral photon irradiance during one day. Spectra scaled to $Q_{\lambda 400..700 nm} = 1000 \mu mol\,s^{-1}\,m^{-2}$. Data from Andes Lindfors.
+#| fig-cap: Time series of scaled spectral photon irradiance during one day. Spectra scaled to $Q_{\lambda 400..700 nm} = 1000 \mu mol\,s^{-1}\,m^{-2}$. Computed by Andes Lindfors with Libradtran.
 
 anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.band = PAR()),
                unit.out = "photon") +
@@ -195,9 +306,8 @@ anim <- ggplot(data = fscale(sun_one_day.spct, f = q_irrad, target = 1e-3, w.ban
   transition_states(UTC,
                     transition_length = 2,
                     state_length = 1) +
-  ggtitle('Now showing {closest_state} UTC',
-          subtitle = 'Frame {frame} of {nframes}')
-animate(anim, duration = 20, fps = 10)
+  ggtitle('At {closest_state} UTC')
+animate(anim, duration = 15, fps = 10)
 ```
 
 :::
@@ -232,7 +342,7 @@ autoplot(beech_shade.spct, annotations = c("-", "peaks")) +
 ```
 :::
 
-## LEDs for plant cultivation
+## Artificial light for plant cultivation
 
 ::: {.panel-tabset}
 ### Grow lights (luminaires)
@@ -244,7 +354,10 @@ autoplot(beech_shade.spct, annotations = c("-", "peaks")) +
 #| out-width: '100%'
 autoplot(lamps.mspct[plant_grow_lamps[1:4]], 
          range = c(350, 900), span = 31,
-         annotations = c("-", "summaries"), facets = 2) + 
+         geom = "spct",
+         annotations = list(c("-", "summaries", "labels", "boxes"),
+                            c("+", "peak.labels")), 
+         facets = 2) + 
   theme_bw() + 
   theme(legend.position = "none")
 ```
@@ -258,10 +371,24 @@ autoplot(lamps.mspct[plant_grow_lamps[1:4]],
 #| out-width: '100%'
 autoplot(leds.mspct[plant_grow_leds[c(1,2, 3, 5)]], 
          range = c(350, 900), span = 31,
-         annotations = c("-", "summaries"), facets = 2) +
+         geom = "spct",
+         annotations = list(c("-", "summaries", "labels", "boxes"),
+                            c("+", "peak.labels")), 
+         facets = 2) +
   theme_bw() + 
   theme(legend.position = "none")
 ```
 
 :::
+
+# Doctoral Teaching at HU
+
+## HU: Related PhD Programs
+
+* HU: Total 33 doctoral programs.
+  - $\approx 460$ PhD degrees awarded per year.
+* DPPS: [Doctoral Program in Plant Sciences](https://www.helsinki.fi/en/admissions-and-education/apply-doctoral-programmes/doctoral-school-and-doctoral-programmes/doctoral-programmes-environmental-food-and-biological-sciences/doctoral-programme-plant-sciences)
+  - $\approx 75$ PhD students.
+* FoodHealth: [Doctoral Programme in Food Chain and Health](https://www.helsinki.fi/en/admissions-and-education/apply-doctoral-programmes/doctoral-school-and-doctoral-programmes/doctoral-programmes-environmental-food-and-biological-sciences/doctoral-programme-food-chain-and-health)
+  - $\approx 100$ PhD students.
 
