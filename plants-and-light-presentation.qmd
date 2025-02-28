@@ -3,14 +3,14 @@ title: "Plants and Light"
 subtitle: "Light as Source of Energy and Information"
 author: "Pedro J. Aphalo"
 institute: "_University of Helsinki_ and _Natural Resources Institute Finland_"
-date: 2025-02-25
+date: 2025-02-28
 format:
   revealjs: 
+    smaller: true
+    margin: 0.05
     transition: slide
     theme: serif
     slide-number: true
-    width: 1300
-    height: 750
     code-tools: true
     embed-resources: true
 ---
@@ -33,45 +33,6 @@ theme_set(theme_minimal(14))
 photon_as_default()
 ```
 
-# Mini CV
-
-## CV: Studies and places
-
-* 1956 Born in Buenos Aires, Argentina.
-* 1982 Ingeniero Agrónomo (orientation Crop Breeding), University of Buenos Aires.
-* 1989 (1987) MSc Plant Production (Thesis: Plant Ecophysiology + Simulation Modelling), University of Buenos Aires.
-* 1991 PhD in Science (Thesis: Plant Ecophysiology + Measurement and Control), Edinburgh University.[*](https://www.researchgate.net/publication/265240047_Interactions_in_stomatal_function)
-* 1991-2024 Work in Finland. METLA. U. Joensuu. U. Jyväskylä. U. Helsinki.
-* 2024- Retired. Visiting Researcher at U. Helsinki and Natural Resources Inst. Finland (Luke).
-
-## CV: Plant Sciences {.scrollable}
-
-* [(1978) 1981-2025] Plant sciences, articles published: $\approx 100$. [ORCID](https://orcid.org/0000-0003-3385-972X).
-  - Review: _Making the most of canopy light: shade avoidance under a fluctuating spectrum and irradiance_ (2024) [*](https://doi.org/10.1093/jxb/erae334)
-  - Paper: _Ultraviolet‐A1 radiation induced a more favorable light‐intercepting leaf‐area display than blue light and promoted plant growth_ (2024)[*](https://doi.org/10.1111/pce.14727)
-  - Review: _Diffuse solar radiation and canopy photosynthesis in a changing environment_ (2021) [*](https://doi.org/10.1016/j.agrformet.2021.108684)
-  - Review: _Perception of solar UV radiation by plants: photoreceptors and mechanisms_ (2021) [*](https://doi.org/10.1093/plphys/kiab162)
-  - Paper: _Explaining preemptive acclimation by linking information to plant phenotype_ (2021) [*](https://doi.org/10.1093/jxb/erab537)
-  - Review: _Making science more effective for agriculture_ (2020) [*](https://doi.org/10.1016/bs.agron.2020.05.003)
-
-## CV: Software development
-
-* [(1978) 1997-2025] Software. Simulation modelling, data analysis and measurement and control [*](https://www.r4photobiology.info)
-  - Programming: I use mainly R. I have used extensively Modula-2 and Pascal. I am familiar and sometimes use C, C++, FORTRAN, Java, Python, and Perl. I have used AWK, 8086 assembler, 6800 assembler, etc.
-  - Currently maintain $\approx 20$ (14 @ CRAN) R packages.
-  - Text mark-up: $\LaTeX$, Markdown (R Markdown, Quarto), HTML.
-  - Book author: _Learn R: As a Language_ (2nd edition, 2024), in The R Series of CRC.[*](https://www.learnr-book.info/)
-
-## CV: Measurement and Control
-
-* [(1978) 2012-2025] Measurement and control hardware deployment and customization. As tools in research.
-  - Book lead editor: _Beyond the Visible: A handbook of best practice in plant UV photobiology_ (2012)[*](https://www.r4photobiology.info/pages/beyond-the-visible.html)
-  - UV, VIS and NIR spectral and broadband measurements.
-  - Manipulation of the light environment: LEDs, optical filters, discharge lamps.
-  - CO2 and water vapour exchange of leaves and plants.
-  - Micrometeorology.
-  - Photography/imaging[*](https://www.photo-spectrum.info/). Ultraviolet, visible, near infra-red, thermal. Macro, tele, hemispherical, etc.
-
 # Plants and Light
 
 ## Plant-Light Interactions
@@ -86,7 +47,20 @@ L --> Lh[Light-harvesting pigments<br/> _high concentration_]
 Lh --> Ps[Photosynthesis =<br/>Energy conversion] --> Gr[[Biomass<br/>plant growth]]
 
 ```
-## Growth Regulation by the Spectrum
+
+## Intercepted Light Drives Growth
+
+::: {#fig-fuchsia layout-ncol=2}
+
+![A](figures/fuchsia_plants_0002.jpg)
+
+![B](figures/fuchsia_plants_0003.jpg)
+
+Size and position of leaves depends on growing conditions. In low light (_A_) large thin leaves are displayed horizontally. In high light (_B_) small thick leaves are displayed almost vertically. 
+
+:::
+
+## Light Colour Regulates Growth
 
 ![Tomato: Responses to the spectrum at equal photon irradiance.](figures/tomatos.jpg)
 
@@ -207,22 +181,43 @@ Gr -- ?% --> Wst[[Waste]]
 
 ```
 
-## Chlorophyll fluorescence
-
-![Faba beans: _In vivo_ chlorophyll fluorescence (NIR) excited by visible light.](figures/faba-chl-fluo-01.jpg){width=50%}
-
-## Photosynthetic Action Spectrum
+## Photosynthesis-related Spectra
 
 ::: {.panel-tabset}
-### Chlorophyll
+### Chlorophyll _a_
 
 ```{r}
-#| label: fig-chlorophyll-spct
-#| fig-cap: Light absorption spectrum of chlorophyll.
+#| label: fig-chlorophyll-a-spct
+#| fig-cap: Light absorption spectrum of chlorophyll _a_ in solution (DME).
 
-autoplot(chlorophylls.mspct[grepl("DME", names(chlorophylls.mspct))], 
-         plot.qty = "absorbance", span = 101, range = c(250, 800),
-         annotations = c("+", "peak.labels"))
+autoplot(chlorophylls.mspct[grepl("Chl_a_DME", names(chlorophylls.mspct))], 
+         plot.qty = "absorbance", span = 101, range = c(360, NA),
+         annotations = c("+", "peak.labels"), geom = "spct") +
+  expand_limits(x = 850)
+```
+
+### Chlorophyll _b_
+
+```{r}
+#| label: fig-chlorophyll-b-spct
+#| fig-cap: Light absorption spectrum of chlorophyll _b_ in solution (DME).
+
+autoplot(chlorophylls.mspct[grepl("Chl_b_DME", names(chlorophylls.mspct))], 
+         plot.qty = "absorbance", span = 101, range = c(360, NA),
+         annotations = c("+", "peak.labels"), geom = "spct") +
+  expand_limits(x = 850)
+```
+
+### Carotene
+
+```{r}
+#| label: fig-carotene-spct
+#| fig-cap: Light absorption spectrum of beta-carotene in solution.
+
+autoplot(carotenoids.mspct$beta_carotene, 
+         plot.qty = "absorbance", span = 21, range = c(360, NA),
+         annotations = c("+", "peak.labels", "wls.labels"), geom = "spct") +
+  expand_limits(x = 850)
 ```
 
 ### Leaf
@@ -231,21 +226,26 @@ autoplot(chlorophylls.mspct[grepl("DME", names(chlorophylls.mspct))],
 #| label: fig-leaf-spct
 #| fig-cap: Spectral optical properties of the upper surface of a leaf of Arabidopsis.
 
-autoplot(Ler_leaf.spct)
+autoplot(Ler_leaf.spct, plot.qty = "absorptance", 
+         annotations = c("+", "valley.labels", "peak.labels", "wls.labels"),
+         range = c(360, NA),
+         geom = "spct", pc.out = TRUE, span = 501)
 ```
 
 ### Photosynthesis
 
 ```{r}
 #| label: fig-photosynthesis-spct
-#| fig-cap: Spectral response of photosynthesis in two plant species.
+#| fig-cap: Monochromatic action spectrum of oats' photosynthesis.
 
-autoplot(McCree_photosynthesis.mspct, span = 21, annotations = c("+", "peak.labels"))
+autoplot(McCree_photosynthesis.mspct["oats"], span = 21, range = c(350, NA),
+         annotations = c("+", "peak.labels", "valley.labels", "wls.labels"),
+         geom = "spct", pc.out = TRUE) + expand_limits(x = c(350, 850))
 ```
 
 :::
 
-## How does regulation affect growth rate?
+## Morphology is Plastic
 
 * _Starting with a given amount of "building blocks" (sugars + minerals)_ "plants' growth-regulation decisions" involve:
 * grow big roots and small shoots, or vice versa,
@@ -253,13 +253,17 @@ autoplot(McCree_photosynthesis.mspct, span = 21, annotations = c("+", "peak.labe
 * continue making only leaves, or start making "fruits",
 * grow tall to avoid shade from neighbours or stay low and tolerate the shade.
 
-## The compromise
+## Growth Depends on Morphology
 
 * A larger surface of leaves intercepts more light driving a faster growth rate (similar to compound interest), but to a point.
 * Larger/longer roots have access to more water and minerals allowing building new leaves, so a balance is needed.
 * What is a good balance depends on light irradiance and soil conditions.
 
 * "Decisions by the plant" are based to a significant extent on the colour of light, because in nature the colour of light informs about _future_ shade.
+
+## Return on Investment
+
+
 
 # The Light Environment
 
@@ -381,14 +385,8 @@ autoplot(leds.mspct[plant_grow_leds[c(1,2, 3, 5)]],
 
 :::
 
-# Doctoral Teaching at HU
+## Chlorophyll fluorescence
 
-## HU: Related PhD Programs
+![Faba beans: _In vivo_ chlorophyll fluorescence (NIR) excited by visible light.](figures/faba-chl-fluo-01.jpg){width=50%}
 
-* HU: Total 33 doctoral programs.
-  - $\approx 460$ PhD degrees awarded per year.
-* DPPS: [Doctoral Program in Plant Sciences](https://www.helsinki.fi/en/admissions-and-education/apply-doctoral-programmes/doctoral-school-and-doctoral-programmes/doctoral-programmes-environmental-food-and-biological-sciences/doctoral-programme-plant-sciences)
-  - $\approx 75$ PhD students.
-* FoodHealth: [Doctoral Programme in Food Chain and Health](https://www.helsinki.fi/en/admissions-and-education/apply-doctoral-programmes/doctoral-school-and-doctoral-programmes/doctoral-programmes-environmental-food-and-biological-sciences/doctoral-programme-food-chain-and-health)
-  - $\approx 100$ PhD students.
 
